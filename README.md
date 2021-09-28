@@ -1,2 +1,2 @@
 # TrafficFilter
-Request filtering and rate limiting middleware for ASP.NET Core
+ASP.NET Core middleware for request filtering and rate limiting
