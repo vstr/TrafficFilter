@@ -2,14 +2,14 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>0.1.0-alpha</Version>
+    <Version>0.1.1</Version>
     <Authors>vstr</Authors>
     <Company />
-    <Description>ASP.NET Core middleware for request filtering and rate limiting</Description>
-    <PackageLicenseExpression>(LGPL-2.0-only WITH FLTK-exception OR Apache-2.0+)</PackageLicenseExpression>
+    <Description>ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.</Description>
+    <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/vstr/TrafficFilter</PackageProjectUrl>
     <RepositoryUrl></RepositoryUrl>
-    <PackageTags>middleware, firewall, asp-net-core, rate-limiter, request-filtering</PackageTags>
+    <PackageTags>middleware, aspnetcore, firewall, rate-limit, request, filter, throttle</PackageTags>
   </PropertyGroup>
 
   <ItemGroup>
