@@ -1,0 +1,55 @@
+name: TrafficFilter
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+jobs:
+
+  build:
+  
+    runs-on: windows-latest
+    
+    steps:
+
+    - uses: benjlevesque/short-sha@v1.2
+      id: short-sha
+      with:
+        length: 7        
+        
+    - run: echo $SHA
+
+    - name: Set VER_PREFIX
+      run: echo "VER_PREFIX=1.1.${{ github.run_number }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      
+    - name: Set FileVer
+      run: echo "FILE_VER=/p:FileVersion=${{ env.VER_PREFIX }}.0 /p:VersionPrefix=${{ env.VER_PREFIX }} /p:VersionSuffix=${{ env.SHA }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+            
+    - run: echo $GITHUB_RUN_NUMBER
+    - run: echo ${{ github.run_number }}
+    - run: echo ${{ env.VER_PREFIX }}
+    - run: echo ${{ env.FILE_VER }}
+        
+    - name: Checkout
+      uses: actions/checkout@v2
+      continue-on-error: false
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 5.0.x
+      continue-on-error: false
+        
+    - name: Restore dependencies
+      run: dotnet restore
+      continue-on-error: false
+      
+    - name: Test
+      run: dotnet test
+      continue-on-error: false
+      
+
+
+
