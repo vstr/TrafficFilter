@@ -1,11 +1,11 @@
 # TrafficFilter
 
-ASP.NET Core middleware for request filtering and rate limiting
+ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.
 
 # About
 
-TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. There are the following request filtering features:
-- Url filtering
+TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. There are the following request filtering features available:
+- URL filtering
 - Headers filtering
 - Rate limiting
 
