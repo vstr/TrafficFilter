@@ -10,7 +10,7 @@ jobs:
 
   build:
   
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
 
@@ -22,10 +22,10 @@ jobs:
     - run: echo $SHA
 
     - name: Set VER_PREFIX
-      run: echo "VER_PREFIX=1.1.${{ github.run_number }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      run: echo "VER_PREFIX=1.1.${{ github.run_number }}" >> $GITHUB_ENV
       
     - name: Set FileVer
-      run: echo "FILE_VER=/p:FileVersion=${{ env.VER_PREFIX }}.0 /p:VersionPrefix=${{ env.VER_PREFIX }} /p:VersionSuffix=${{ env.SHA }}" | Out-File -FilePath $Env:GITHUB_ENV -Encoding utf-8 -Append
+      run: echo "FILE_VER=/p:FileVersion=${{ env.VER_PREFIX }}.0 /p:VersionPrefix=${{ env.VER_PREFIX }} /p:VersionSuffix=${{ env.SHA }}" >> $GITHUB_ENV
             
     - run: echo $GITHUB_RUN_NUMBER
     - run: echo ${{ github.run_number }}
