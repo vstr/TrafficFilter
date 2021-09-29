@@ -1,12 +1,11 @@
 # TrafficFilter
-(draft)
 
-ASP.NET Core middleware for request filtering and rate limiting
+ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.
 
 # About
 
-TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. There are the following request filtering features:
-- Url filtering
+TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. There are the following request filtering features available:
+- URL filtering
 - Headers filtering
 - Rate limiting
 
@@ -20,16 +19,16 @@ It can also block traffic if configured path-based rate limit is reached.
 
 ## Getting Started
 
-First install the NuGet package using PowerShell:
-
+First install the [TrafficFilter](https://www.nuget.org/packages/TrafficFilter/) NuGet package using PowerShell:
+                                  
 ```powershell
-TBD
+PM> Install-Package TrafficFilter
 ```
 
 or via the dotnet command line:
 
 ```
-TBD
+dotnet add package TrafficFilter
 ```
 
 Then add the TrafficFilter middleware to your ASP.NET Core `Startup` class:
