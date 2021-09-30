@@ -52,7 +52,7 @@ namespace SampleWebApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // --- TrafficFilter - topmost important! ---
+            // --- TrafficFilter - topmost ---
             app.UseTrafficFilter();
 
             //...
@@ -66,6 +66,7 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 ```json
 "TrafficFilter": {
     "IPBlacklistTimeoutSeconds": 5,
+    "IsBehindReverseProxy": true,
     "RequestFilterUrl": {
       "IsEnabled": true,
       "Matches": [
@@ -116,6 +117,8 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 If any of the enabled filters matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
 
 Possible values for Match Type are: `MatchStartsWith`, `MatchContains`, `MatchEndsWith` and `MatchRegex`.
+
+If your app is placed behind reverse proxy, set `IsBehindReverseProxy` to `true`. In case of the CloudFlare, the IP address is read from `CF-Connecting-IP`, in other cases from `X_FORWARDED_FOR` header.
 
 ## License
 
