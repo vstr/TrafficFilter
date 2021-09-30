@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -10,7 +9,7 @@ using TrafficFilter.RequestFiltering;
 
 namespace TrafficFilter
 {
-    public static class TrafficFilterExtensions
+    public static class TrafficFilterMiddlewareExtensions
     {
         public static IApplicationBuilder UseTrafficFilter(this IApplicationBuilder builder)
         {
@@ -42,18 +41,6 @@ namespace TrafficFilter
                 .GetSection(RateLimiterOptions.RateLimiter));
 
             return services;
-        }
-
-        public static string GetIPAddress(this HttpContext httpContext)
-        {
-            if (httpContext == null)
-            {
-                return null;
-            }
-
-            var remoteIpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-
-            return remoteIpAddress;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace TrafficFilter
             IOptions<TrafficFilterOptions> options,
             ILogger<TrafficFilterMiddleware> logger)
         {
-            var ipAddress = httpContext.GetIPAddress();
+            var ipAddress = httpContext.GetIPAddress(options.Value, logger);
 
             if (ipAddress == null || ipBlacklist.IsInBlacklist(ipAddress))
             {

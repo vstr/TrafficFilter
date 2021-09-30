@@ -6,5 +6,6 @@ namespace TrafficFilter.Configuration
     {
         public const string TrafficFilter = nameof(TrafficFilter);
         public int IPBlacklistTimeoutSeconds { get; set; } = (int)TimeSpan.FromMinutes(15).TotalSeconds;
+        public bool IsBehindReverseProxy { get; set; }
     }
 }
