@@ -10,7 +10,7 @@ namespace TrafficFilter.Matches
         public MatchRegex(string pattern)
         {
             _pattern = pattern;
-            _regex = new Regex(pattern);
+            _regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
         public string Match => _pattern;

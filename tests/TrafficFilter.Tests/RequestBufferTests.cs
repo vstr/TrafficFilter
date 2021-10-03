@@ -3,7 +3,7 @@ using System.Threading;
 
 using FluentAssertions;
 
-using TrafficFilter.RateLimit;
+using TrafficFilter.Core;
 
 using Xunit;
 

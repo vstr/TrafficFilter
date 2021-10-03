@@ -7,70 +7,61 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using TrafficFilter.Configuration;
+using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
 
-namespace TrafficFilter.RequestFiltering
+namespace TrafficFilter.RequestFilters
 {
-    public interface IRequestFilterHeaders : IRequestFilter
-    {
-        bool IsBadRequest(IHeaderDictionary headerDictionary);
-    }
-
-    public class RequestFilterHeaders : IRequestFilterHeaders
+    public class RequestFilterHeaders : IRequestFilter
     {
         protected readonly RequestFilterHeadersOptions _options;
-
-        private readonly IList<HeaderMatch> _matches;
-        private readonly ILogger<RequestFilterHeaders> _logger;
+        private readonly IList<HeaderMatch> _headerMatches;
 
         public RequestFilterHeaders(IOptions<RequestFilterHeadersOptions> options,
-            IMatchesFactory matchesFactory,
-            ILogger<RequestFilterHeaders> logger)
+            IMatchesFactory matchesFactory)
         {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
             if (matchesFactory == null) { throw new ArgumentNullException(nameof(matchesFactory)); }
-            if (logger == null) { throw new ArgumentNullException(nameof(logger)); }
 
             _options = options.Value;
 
-            _matches = _options.Matches != null
+            _headerMatches = _options.Matches != null
                 ? _options.Matches.Select(m => new HeaderMatch(m.Header, matchesFactory.GetInstance(m.Type, m.Match))).ToList()
                 : new List<HeaderMatch>();
-
-            _logger = logger;
         }
 
         public bool IsEnabled => _options.IsEnabled;
+        public int Order => 2;
 
-        public bool IsBadRequest(IHeaderDictionary headerDictionary)
+        public bool IsMatch(HttpContext httpContext)
         {
             if (!IsEnabled)
             {
                 return false;
             }
 
-            if (headerDictionary == null)
+            if (httpContext.Request.Headers == null)
             {
-                _logger.LogWarning($"Bad Header Request detected - {nameof(headerDictionary)} is null");
+                httpContext.Log(LogLevel.Information, $"Bad Header Request detected - {nameof(httpContext.Request.Headers)} is null");
                 return true;
             }
 
-            return IsMatch(headerDictionary);
+            return IsHeaderMatch(httpContext);
         }
 
-        private bool IsMatch(IHeaderDictionary headerDictionary)
+        private bool IsHeaderMatch(HttpContext httpContext)
         {
-            foreach (var m in _matches)
+            foreach (var m in _headerMatches)
             {
-                if (!headerDictionary.ContainsKey(m.Header))
+                if (!httpContext.Request.Headers.ContainsKey(m.Header))
                 {
-                    _logger.LogWarning($"Bad Header Request detected - header '{m.Header}' was not found");
+                    httpContext.Log(LogLevel.Information, $"Bad Header Request detected - header '{m.Header}' was not found");
                     return true;
                 }
 
-                if (m.Match.IsMatch(headerDictionary[m.Header]))
+                if (m.Match.IsMatch(httpContext.Request.Headers[m.Header]))
                 {
-                    _logger.LogWarning($"Bad Header Request detected - matched header '{m.Header}', match '{m.Match.Match}'  value '{headerDictionary[m.Header]}'");
+                    httpContext.Log(LogLevel.Information, $"Bad Header Request detected - matched header '{m.Header}', match '{m.Match.Match}'  value '{httpContext.Request.Headers[m.Header]}'");
                     return true;
                 }
             }

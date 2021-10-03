@@ -15,7 +15,7 @@ namespace TrafficFilter.Tests
             var matchesFactory = new MatchesFactory();
 
             //Act
-            var matchContains = matchesFactory.GetInstance(nameof(MatchContains), "test");
+            var matchContains = matchesFactory.GetInstance("Contains", "test");
 
             //Assert
             matchContains.Should().NotBeNull();

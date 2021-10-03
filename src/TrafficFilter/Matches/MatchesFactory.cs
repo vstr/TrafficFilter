@@ -26,7 +26,7 @@ namespace TrafficFilter.Matches
                  .GetTypes()
                  .Where(t => !t.IsAbstract)
                  .Where(t => typeof(IMatch).IsAssignableFrom(t))
-                 .ToDictionary(t => t.Name, t => t);
+                 .ToDictionary(t => t.Name.Replace("Match", string.Empty), t => t);
         }
     }
 }

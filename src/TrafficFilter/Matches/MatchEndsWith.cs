@@ -12,6 +12,7 @@ namespace TrafficFilter.Matches
         }
 
         public string Match => _match;
+
         public bool IsMatch(string source)
         {
             return source.EndsWith(_match, StringComparison.InvariantCultureIgnoreCase);

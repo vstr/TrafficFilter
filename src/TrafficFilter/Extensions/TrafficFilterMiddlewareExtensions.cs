@@ -3,9 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 using TrafficFilter.Configuration;
+using TrafficFilter.Core;
 using TrafficFilter.Matches;
-using TrafficFilter.RateLimit;
-using TrafficFilter.RequestFiltering;
+using TrafficFilter.RequestFilters;
 
 namespace TrafficFilter
 {
@@ -19,10 +19,13 @@ namespace TrafficFilter
         public static IServiceCollection AddTrafficFilter(this IServiceCollection services, IConfiguration configuration)
         {
             _ = services.AddSingleton<IIpBlacklist, IpBlacklist>();
-            _ = services.AddSingleton<IRequestFilterUrl, RequestFilterUrl>();
-            _ = services.AddSingleton<IRequestFilterHeaders, RequestFilterHeaders>();
-            _ = services.AddSingleton<IRateLimiter, RateLimiter>();
             _ = services.AddSingleton<IMatchesFactory, MatchesFactory>();
+            _ = services.AddSingleton<ITrafficFilter, TrafficFilter>();
+            _ = services.AddSingleton<IRequestFiltersFactory, RequestFiltersFactory>();
+
+            _ = services.AddSingleton<RequestFilterUrl>();
+            _ = services.AddSingleton<RequestFilterHeaders>();
+            _ = services.AddSingleton<RequestFilterRateLimiter>();
 
             _ = services.AddOptions();
 
@@ -36,9 +39,9 @@ namespace TrafficFilter
                 .GetSection(TrafficFilterOptions.TrafficFilter)
                 .GetSection(RequestFilterHeadersOptions.RequestFilterHeaders));
 
-            _ = services.Configure<RateLimiterOptions>(configuration
+            _ = services.Configure<RequestFilterRateLimiterOptions>(configuration
                 .GetSection(TrafficFilterOptions.TrafficFilter)
-                .GetSection(RateLimiterOptions.RateLimiter));
+                .GetSection(RequestFilterRateLimiterOptions.RateLimiter));
 
             return services;
         }

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Net;
 
 using Microsoft.AspNetCore.Http;
@@ -17,6 +18,7 @@ namespace TrafficFilter.Tests.Common
             contextAccessor.HttpContext.Request.Path.Returns(new PathString(path));
             contextAccessor.HttpContext.Request.QueryString.Returns(new QueryString(queryString));
             contextAccessor.HttpContext.Request.Scheme.Returns(scheme);
+            contextAccessor.HttpContext.Items.Returns(new Dictionary<object, object>());
             return contextAccessor;
         }
     }

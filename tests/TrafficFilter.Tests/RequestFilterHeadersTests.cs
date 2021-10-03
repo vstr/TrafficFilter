@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
 using TrafficFilter.Configuration;
+using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
-using TrafficFilter.RequestFiltering;
+using TrafficFilter.RequestFilters;
+using TrafficFilter.Tests.Common;
 
 using Xunit;
 
@@ -19,20 +20,19 @@ namespace TrafficFilter.Tests
     public class RequestFilterHeadersTests
     {
         [Fact]
-        public void MatchContainsOtherAgentReturnsOkRequest()
+        public void ContainsNotMatchingDifferentUserAgents()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
-
             var headerName = "User-Agent";
 
-            var headerDictionary = Substitute.For<IHeaderDictionary>();
-            headerDictionary.ContainsKey(headerName).Returns(true);
-            headerDictionary[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            httpContextAccessor.HttpContext.Request.Headers.ContainsKey(headerName).Returns(true);
+            httpContextAccessor.HttpContext.Request.Headers[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
 
             var match = @"y-bot";
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchContains", match).Returns(new MatchContains(match));
+            matchesFactory.GetInstance("Contains", match).Returns(new MatchContains(match));
 
             var options = Substitute.For<IOptions<RequestFilterHeadersOptions>>();
             options.Value.Returns(new RequestFilterHeadersOptions()
@@ -41,36 +41,36 @@ namespace TrafficFilter.Tests
                 Matches = new List<MatchItemHeader>() { new MatchItemHeader()
                     {
                         Header = headerName,
-                        Type = "MatchContains",
+                        Type = "Contains",
                         Match = match
                     }
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterHeaders.IsBadRequest(headerDictionary);
+            var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
+            requestFilterHeaders.Order.Should().Be(2);
         }
 
         [Fact]
-        public void MatchContainsForbiddenUserAgentReturnsBadRequest()
+        public void ContainsMatchesForbiddenUserAgent()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
-
             var headerName = "User-Agent";
 
-            var headerDictionary = Substitute.For<IHeaderDictionary>();
-            headerDictionary.ContainsKey(headerName).Returns(true);
-            headerDictionary[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            httpContextAccessor.HttpContext.Request.Headers.ContainsKey(headerName).Returns(true);
+            httpContextAccessor.HttpContext.Request.Headers[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
 
             var match = @"x-bot";
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchContains", match).Returns(new MatchContains(match));
+            matchesFactory.GetInstance("Contains", match).Returns(new MatchContains(match));
 
             var options = Substitute.For<IOptions<RequestFilterHeadersOptions>>();
             options.Value.Returns(new RequestFilterHeadersOptions()
@@ -79,32 +79,31 @@ namespace TrafficFilter.Tests
                 Matches = new List<MatchItemHeader>() { new MatchItemHeader()
                     {
                         Header = headerName,
-                        Type = "MatchContains",
+                        Type = "Contains",
                         Match = match
                     }
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterHeaders.IsBadRequest(headerDictionary);
+            var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
 
         [Fact]
-        public void MatchContainsHeaderMissingReturnsBadRequest()
+        public void MissingHeaderConsideredAsMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
-
-            var headerDictionary = Substitute.For<IHeaderDictionary>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var match = @"x-bot";
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchContains", match).Returns(new MatchContains(match));
+            matchesFactory.GetInstance("Contains", match).Returns(new MatchContains(match));
 
             var options = Substitute.For<IOptions<RequestFilterHeadersOptions>>();
             options.Value.Returns(new RequestFilterHeadersOptions()
@@ -113,28 +112,27 @@ namespace TrafficFilter.Tests
                 Matches = new List<MatchItemHeader>() { new MatchItemHeader()
                     {
                         Header = "User-Agent",
-                        Type = "MatchContains",
+                        Type = "Contains",
                         Match = match
                     }
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterHeaders.IsBadRequest(headerDictionary);
+            var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
 
         [Fact]
-        public void IsEnabledFalseReturnsOkRequest()
+        public void IsEnabledFalseResultsInNoMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
-
-            var headerDictionary = Substitute.For<IHeaderDictionary>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -144,20 +142,22 @@ namespace TrafficFilter.Tests
                 IsEnabled = false
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterHeaders.IsBadRequest(headerDictionary);
+            var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
         }
 
         [Fact]
-        public void HeadersNullReturnsBadRequest()
+        public void HeadersNullMatches()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.Request.Headers.Returns((IHeaderDictionary)null);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -167,13 +167,13 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterHeaders.IsBadRequest(null);
+            var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
     }
 }

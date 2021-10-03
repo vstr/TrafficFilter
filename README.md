@@ -1,4 +1,4 @@
-# TrafficFilter
+# ![TrafficFilter](https://raw.githubusercontent.com/vstr/TrafficFilter/main/assets/TrafficFilter64x64.png) TrafficFilter
 
 ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.
 
@@ -71,19 +71,19 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
       "IsEnabled": true,
       "Matches": [
         {
-          "Type": "MatchRegex",
+          "Type": "Regex",
           "Match": "https?:\\/\\/[\\d*\\.*]+" //Pattern for IP Address based Url
         },
         {
-          "Type": "MatchEndsWith",
+          "Type": "EndsWith",
           "Match": ".xml"
         },       
         {
-          "Type": "MatchContains",
+          "Type": "Contains",
           "Match": "mysql"
         },
         {
-          "Type": "MatchStartsWith",
+          "Type": "StartsWith",
           "Match": "ftp"
         }
       ]
@@ -93,18 +93,18 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
       "Matches": [
         {
           "Header": "user-agent",
-          "Type": "MatchContains",
+          "Type": "Contains",
           "Match": "x-bot"
         }
       ]
     },
     "RateLimiter": {
       "IsEnabled": true,
-      "RateLimiterWindowSeconds": 1,
-      "RateLimiterRequestLimit": 10,
-      "SkipUrls": [ // Add matches here if you want to exclude them from rate limiting
+      "RateLimiterWindowSeconds": 2,
+      "RateLimiterRequestLimit": 3,
+      "WhitelistUrls": [
         {
-          "Type": "MatchEndsWith",
+          "Type": "EndsWith",
           "Match": ".mp4"
         }
       ]
@@ -116,12 +116,14 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 
 If any of the enabled filters matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
 
-Possible values for Match Type are: `MatchStartsWith`, `MatchContains`, `MatchEndsWith` and `MatchRegex`.
+Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
 
-If your app is placed behind reverse proxy, set `IsBehindReverseProxy` to `true`. In case of the CloudFlare, the IP address is read from `CF-Connecting-IP`, in other cases from `X_FORWARDED_FOR` header.
+If your origin server is placed behind reverse proxy, set `IsBehindReverseProxy` to `true`. In case of the CloudFlare, the IP address is read from `CF-Connecting-IP`, in other cases from `X_FORWARDED_FOR` header.
+
+## Credits
+Icons made by [Freepik](https://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/)
 
 ## License
 
 [Apache 2.0](https://raw.githubusercontent.com/vstr/TrafficFilter/main/LICENSE)
-
 

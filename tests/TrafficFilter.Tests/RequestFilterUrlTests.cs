@@ -2,14 +2,16 @@ using System.Collections.Generic;
 
 using FluentAssertions;
 
-using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
 
 using TrafficFilter.Configuration;
+using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
-using TrafficFilter.RequestFiltering;
+using TrafficFilter.RequestFilters;
+using TrafficFilter.Tests.Common;
 
 using Xunit;
 
@@ -18,16 +20,17 @@ namespace TrafficFilter.Tests
     public class RequestFilterUrlTests
     {
         [Theory]
-        [InlineData(@"http://127.0.0.1")]
-        [InlineData(@"https://127.0.0.1")]
-        public void MatchRegexOnIPAdressReturnsBadRequest(string url)
+        [InlineData("http", "127.0.0.1")]
+        [InlineData("https", "127.0.0.1")]
+        public void RegexOnIPAdressReturnsMatch(string scheme, string ipAddress)
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor(scheme, ipAddress, "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var pattern = @"https?:\/\/[\d*\.*]+";
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchRegex", pattern).Returns(new MatchRegex(pattern));
+            matchesFactory.GetInstance("Regex", pattern).Returns(new MatchRegex(pattern));
 
             var options = Substitute.For<IOptions<RequestFilterUrlOptions>>();
             options.Value.Returns(new RequestFilterUrlOptions()
@@ -35,26 +38,28 @@ namespace TrafficFilter.Tests
                 IsEnabled = true,
                 Matches = new List<MatchItemUrl>() { new MatchItemUrl()
                     {
-                        Type = "MatchRegex",
+                        Type = "Regex",
                         Match = pattern
                     }
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(url);
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
+            requestFilterUrl.Order.Should().Be(1);
         }
 
         [Fact]
-        public void EmptyMatchesReturnsOkRequest()
+        public void EmptyMatchesReturnsNoMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("htt", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -64,20 +69,21 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
         }
 
         [Fact]
-        public void EmptyMatchesProvidedReturnsOkRequest()
+        public void EmptyMatchesProvidedReturnsNoMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("htt", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -88,23 +94,24 @@ namespace TrafficFilter.Tests
                 Matches = new List<MatchItemUrl>()
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
         }
 
         [Fact]
-        public void MatchStartsWithReturnsBadRequest()
+        public void StartsWithReturnsMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.mp4");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchStartsWith", "htt:").Returns(new MatchStartsWith("htt:"));
+            matchesFactory.GetInstance("StartsWith", "http:").Returns(new MatchStartsWith("http:"));
 
             var options = Substitute.For<IOptions<RequestFilterUrlOptions>>();
             options.Value.Returns(new RequestFilterUrlOptions()
@@ -112,29 +119,30 @@ namespace TrafficFilter.Tests
                 IsEnabled = true,
                 Matches = new List<MatchItemUrl>() { new MatchItemUrl()
                         {
-                            Type = "MatchStartsWith",
-                            Match = "htt:"
+                            Type = "StartsWith",
+                            Match = "http:"
                         }
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1/index.php?a=15");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
 
         [Fact]
-        public void MatchEndsWithReturnsBadRequest()
+        public void EndsWithReturnsMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.mp4", "?a=15");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchEndsWith", "a=15").Returns(new MatchEndsWith("a=15"));
+            matchesFactory.GetInstance("EndsWith", "a=15").Returns(new MatchEndsWith("a=15"));
 
             var options = Substitute.For<IOptions<RequestFilterUrlOptions>>();
             options.Value.Returns(new RequestFilterUrlOptions()
@@ -142,29 +150,30 @@ namespace TrafficFilter.Tests
                 IsEnabled = true,
                 Matches = new List<MatchItemUrl>() { new MatchItemUrl()
                         {
-                            Type = "MatchEndsWith",
+                            Type = "EndsWith",
                             Match = "a=15"
                         }
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1/index.php?a=15");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
 
         [Fact]
-        public void MatchContainsReturnsBadRequest()
+        public void ContainsReturnsMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchContains", ".php").Returns(new MatchContains(".php"));
+            matchesFactory.GetInstance("Contains", ".php").Returns(new MatchContains(".php"));
 
             var options = Substitute.For<IOptions<RequestFilterUrlOptions>>();
             options.Value.Returns(new RequestFilterUrlOptions()
@@ -172,26 +181,27 @@ namespace TrafficFilter.Tests
                 IsEnabled = true,
                 Matches = new List<MatchItemUrl>() { new MatchItemUrl()
                         {
-                            Type = "MatchContains",
+                            Type = "Contains",
                             Match = ".php"
                         }
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1/index.php?a=15");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
 
         [Fact]
-        public void MatchContainsMissingMatchReturnsOkRequest()
+        public void ContainsMissingMatchReturnsNoMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("MatchContains", "abc").Returns(new MatchContains("abc"));
@@ -208,23 +218,23 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1/index.php?a=15");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
         }
 
         [Fact]
-        public void IsEnabledFalseReturnsOkRequest()
+        public void IsEnabledFalseReturnsNoMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
+            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("MatchContains", "abc").Returns(new MatchContains("abc"));
 
             var options = Substitute.For<IOptions<RequestFilterUrlOptions>>();
             options.Value.Returns(new RequestFilterUrlOptions()
@@ -232,20 +242,20 @@ namespace TrafficFilter.Tests
                 IsEnabled = false
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(@"htt://192.168.0.1/index.php?a=15");
+            var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
 
             //Assert
-            isBadRequest.Should().BeFalse();
+            isMatch.Should().BeFalse();
         }
 
         [Fact]
-        public void NullRequestUrlReturnsBadRequest()
+        public void NullRequestUrlReturnsMatch()
         {
             //Arrange
-            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+            var httpContext = new DefaultHttpContext();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -255,13 +265,13 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
 
             //Act
-            var isBadRequest = requestFilterUrl.IsBadRequest(null);
+            var isMatch = requestFilterUrl.IsMatch(httpContext);
 
             //Assert
-            isBadRequest.Should().BeTrue();
+            isMatch.Should().BeTrue();
         }
     }
 }

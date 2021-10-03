@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace TrafficFilter.RateLimit
+namespace TrafficFilter.Core
 {
     public class RequestBuffer : LinkedList<RequestItem>
     {
@@ -15,11 +15,11 @@ namespace TrafficFilter.RateLimit
             _expiresIn = expiresIn;
         }
 
-        public bool IsFull(string request)
+        public bool IsFull(string requestPath)
         {
             var dateTimeUtcNow = DateTime.UtcNow;
             var dateTimeUtcExpired = dateTimeUtcNow - _expiresIn;
-            var itemHashCode = request.GetHashCode();
+            var itemHashCode = requestPath.GetHashCode();
 
             var requestItem = new RequestItem()
             {
@@ -38,5 +38,12 @@ namespace TrafficFilter.RateLimit
 
             return reqCount > _requestCountLimit;
         }
+    }
+
+    public class RequestItem
+    {
+        public DateTime Created { get; set; }
+
+        public int RequestHash { get; set; }
     }
 }
