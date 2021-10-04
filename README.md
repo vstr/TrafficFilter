@@ -4,18 +4,18 @@ ASP.NET Core middleware for request filtering and rate limiting. Configuration b
 
 # About
 
-TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. There are the following request filtering features available:
-- URL filtering
-- Headers filtering
-- Rate limiting
+TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. Once any filtering rule matches, the requester's IP address is blacklisted for the duration of a configured period. The following request filters are available:
+- URL
+- Headers
+- Rate Limiting
 
-Each feature can be enabled and configured in the config file. 
+Each filter can be enabled and configured in the app config file.
 
-TrafficFilter may be useful in scenarios when you want to protect your web app and server resources from various scanning bots that try to access non-existent URLs by blacklisting their IP addresses for a configured amount of time.
+TrafficFilter may be useful in scenarios when you want to protect your origin server resources from scanners/bots that try to access non-existent URLs.
 
-Another use case could be protecting the app if it is accessed using a public server IP address. 
+Another use case could be protecting the app from accessing it using a public IP address.
 
-It can also block traffic if configured path-based rate limit is reached.
+TrafficFilter can also block requests from further processing if the configured rate limit is reached.
 
 ## Getting Started
 
@@ -115,6 +115,8 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 ## Documentation
 
 If any of the enabled filters matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
+
+Rate limiting is applied per IP address / Request Path.
 
 Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
 

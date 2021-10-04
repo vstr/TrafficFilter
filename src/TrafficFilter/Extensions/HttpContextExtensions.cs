@@ -68,7 +68,7 @@ namespace TrafficFilter.Extensions
                 remoteIpAddress = httpContext.Connection.RemoteIpAddress;
             }
 
-            httpContext.Log(LogLevel.Information, $"IP: {remoteIpAddress} {httpContext.GetDisplayUrl()}");
+            httpContext.Log(LogLevel.Information, $"IP: {remoteIpAddress} {httpContext.Request.Method} {httpContext.GetDisplayUrl()}");
 
             if (!httpContext.Items.ContainsKey(IPAddressItemKey))
             {
