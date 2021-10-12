@@ -66,7 +66,6 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 ```json
 "TrafficFilter": {
     "IPBlacklistTimeoutSeconds": 5,
-    "IsBehindReverseProxy": true,
     "RequestFilterUrl": {
       "IsEnabled": true,
       "Matches": [
@@ -120,7 +119,7 @@ Rate limiting is applied per IP address / Request Path.
 
 Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
 
-If your origin server is placed behind reverse proxy, set `IsBehindReverseProxy` to `true`. In case of the CloudFlare, the IP address is read from `CF-Connecting-IP`, in other cases from `X_FORWARDED_FOR` header.
+To support Cloudflare setup, use `forwardedOptions.FillKnownNetworks()` extension method to load and populate known networks (see `SampleWebApp`)
 
 ## Credits
 Icons made by [Freepik](https://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/)

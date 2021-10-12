@@ -26,7 +26,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor(scheme, ipAddress, "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var pattern = @"https?:\/\/[\d*\.*]+";
             var matchesFactory = Substitute.For<IMatchesFactory>();
@@ -59,7 +59,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("htt", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -83,7 +83,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("htt", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -108,7 +108,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("StartsWith", "http:").Returns(new MatchStartsWith("http:"));
@@ -139,7 +139,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.mp4", "?a=15");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("EndsWith", "a=15").Returns(new MatchEndsWith("a=15"));
@@ -170,7 +170,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("Contains", ".php").Returns(new MatchContains(".php"));
@@ -201,7 +201,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("MatchContains", "abc").Returns(new MatchContains("abc"));
@@ -232,7 +232,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("http", "192.168.0.1", "/home/intro.php", "?a=15");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 

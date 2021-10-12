@@ -44,7 +44,6 @@ namespace TrafficFilter.Tests
             var options = Substitute.For<IOptions<TrafficFilterOptions>>();
             options.Value.Returns(new TrafficFilterOptions()
             {
-                IsBehindReverseProxy = false
             });
 
             var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);
@@ -83,7 +82,6 @@ namespace TrafficFilter.Tests
             var options = Substitute.For<IOptions<TrafficFilterOptions>>();
             options.Value.Returns(new TrafficFilterOptions()
             {
-                IsBehindReverseProxy = false
             });
 
             var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);
@@ -121,7 +119,6 @@ namespace TrafficFilter.Tests
             var options = Substitute.For<IOptions<TrafficFilterOptions>>();
             options.Value.Returns(new TrafficFilterOptions()
             {
-                IsBehindReverseProxy = false
             });
 
             var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);

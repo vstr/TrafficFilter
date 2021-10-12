@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Net;
 
 using Microsoft.AspNetCore.Http;
@@ -52,63 +51,23 @@ namespace TrafficFilter.Extensions
             return (string)displayUrl;
         }
 
-        public static IPAddress GetIPAddress(this HttpContext httpContext, bool isBehindReverseProxy)
+        public static IPAddress GetIPAddress(this HttpContext httpContext)
         {
             if (httpContext == null) { return null; }
 
-            IPAddress remoteIpAddress = null;
-
-            if (isBehindReverseProxy)
+            if (!httpContext.Items.TryGetValue(IPAddressItemKey, out var ipAddress))
             {
-                remoteIpAddress = GetIPAddressFromHeaders(httpContext);
-            }
+                ipAddress = httpContext.Connection.RemoteIpAddress;
 
-            if (remoteIpAddress == null)
-            {
-                remoteIpAddress = httpContext.Connection.RemoteIpAddress;
-            }
+                httpContext.Log(LogLevel.Information, $"IP: {ipAddress} {httpContext.Request.Method} {httpContext.GetDisplayUrl()}");
 
-            httpContext.Log(LogLevel.Information, $"IP: {remoteIpAddress} {httpContext.Request.Method} {httpContext.GetDisplayUrl()}");
-
-            if (!httpContext.Items.ContainsKey(IPAddressItemKey))
-            {
-                httpContext.Items[IPAddressItemKey] = remoteIpAddress;
-            }
-
-            return remoteIpAddress;
-        }
-
-        public static IPAddress GetIPAddress(this HttpContext httpContext)
-        {
-            if (httpContext != null && httpContext.Items.TryGetValue(IPAddressItemKey, out var ipAddress))
-            {
-                return (IPAddress)ipAddress;
-            }
-            return null;
-        }
-
-        private static IPAddress GetIPAddressFromHeaders(HttpContext httpContext)
-        {
-            //Check if we are behind CloudFlare
-            string ipAddress = httpContext.Request.Headers["CF-Connecting-IP"];
-            if (!string.IsNullOrEmpty(ipAddress))
-            {
-                httpContext.Log(LogLevel.Debug, $"CF-Connecting-IP: {ipAddress}");
-                return IPAddress.Parse(ipAddress);
-            }
-
-            ipAddress = httpContext.Request.Headers["X_FORWARDED_FOR"];
-            if (!string.IsNullOrEmpty(ipAddress))
-            {
-                httpContext.Log(LogLevel.Debug, $"X_FORWARDED_FOR: {ipAddress}");
-                ipAddress = ipAddress.Split(',').LastOrDefault().Trim();
-                if (!string.IsNullOrEmpty(ipAddress))
+                if (!httpContext.Items.ContainsKey(IPAddressItemKey))
                 {
-                    return IPAddress.Parse(ipAddress);
+                    httpContext.Items[IPAddressItemKey] = ipAddress;
                 }
             }
 
-            return null;
+            return (IPAddress)ipAddress;
         }
     }
 }

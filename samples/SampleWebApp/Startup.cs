@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
 using TrafficFilter;
+using TrafficFilter.Extensions;
 
 namespace SampleWebApp
 {
@@ -28,7 +31,18 @@ namespace SampleWebApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // --- TrafficFilter - topmost important! ---
+            if (env.IsProduction())
+            {
+                var forwardedOptions = new ForwardedHeadersOptions()
+                {
+                    ForwardedHeaders = ForwardedHeaders.All,
+                    ForwardLimit = null
+                };
+                forwardedOptions.FillKnownNetworks(); // TrafficFilter extension to load Cloudflare IP ranges and fill KnownNetworks (https://www.cloudflare.com/ips/)
+                app.UseForwardedHeaders(forwardedOptions);
+            }
+
+            // --- TrafficFilter ---
             app.UseTrafficFilter();
 
             app.UseRouting();

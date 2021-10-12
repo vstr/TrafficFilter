@@ -95,7 +95,7 @@ namespace TrafficFilter.Tests
             var rateLimiter = new RequestFilterRateLimiter(options, matchesFactory);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             //Act
             _ = rateLimiter.IsMatch(httpContextAccessor.HttpContext);
@@ -131,7 +131,7 @@ namespace TrafficFilter.Tests
             var rateLimiter = new RequestFilterRateLimiter(options, matchesFactory);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             //Act
             _ = rateLimiter.IsMatch(httpContextAccessor.HttpContext);
@@ -158,7 +158,7 @@ namespace TrafficFilter.Tests
             });
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var rateLimiter = new RequestFilterRateLimiter(options, matchesFactory);
 

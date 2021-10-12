@@ -29,7 +29,6 @@ namespace TrafficFilter.Tests
             var trafficFilter = Substitute.For<ITrafficFilter>();
             trafficFilter.TrafficFilterOptions.Returns(new TrafficFilterOptions
             {
-                IsBehindReverseProxy = true,
                 IPBlacklistTimeoutSeconds = 10
             });
             trafficFilter.IsAllowed(httpContext).Returns(true);
@@ -56,7 +55,6 @@ namespace TrafficFilter.Tests
             var trafficFilter = Substitute.For<ITrafficFilter>();
             trafficFilter.TrafficFilterOptions.Returns(new TrafficFilterOptions
             {
-                IsBehindReverseProxy = true,
                 IPBlacklistTimeoutSeconds = 10
             });
             trafficFilter.IsAllowed(httpContext).Returns(false);

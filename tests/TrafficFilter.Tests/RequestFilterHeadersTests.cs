@@ -26,7 +26,7 @@ namespace TrafficFilter.Tests
             var headerName = "User-Agent";
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
             httpContextAccessor.HttpContext.Request.Headers.ContainsKey(headerName).Returns(true);
             httpContextAccessor.HttpContext.Request.Headers[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
 
@@ -64,7 +64,7 @@ namespace TrafficFilter.Tests
             var headerName = "User-Agent";
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
             httpContextAccessor.HttpContext.Request.Headers.ContainsKey(headerName).Returns(true);
             httpContextAccessor.HttpContext.Request.Headers[headerName].Returns(new Microsoft.Extensions.Primitives.StringValues("agent X-Bot here"));
 
@@ -99,7 +99,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var match = @"x-bot";
             var matchesFactory = Substitute.For<IMatchesFactory>();
@@ -132,7 +132,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
 
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
@@ -156,7 +156,7 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
-            _ = httpContextAccessor.HttpContext.GetIPAddress(false);
+            _ = httpContextAccessor.HttpContext.GetIPAddress();
             _ = httpContextAccessor.HttpContext.Request.Headers.Returns((IHeaderDictionary)null);
 
             var matchesFactory = Substitute.For<IMatchesFactory>();

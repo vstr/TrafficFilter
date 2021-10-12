@@ -36,7 +36,7 @@ namespace TrafficFilter
 
         public bool IsAllowed(HttpContext httpContext)
         {
-            var ipAddress = httpContext.GetIPAddress(_trafficFilterOptions.IsBehindReverseProxy);
+            var ipAddress = httpContext.GetIPAddress();
 
             if (_ipBlacklist.IsInBlacklist(ipAddress))
             {

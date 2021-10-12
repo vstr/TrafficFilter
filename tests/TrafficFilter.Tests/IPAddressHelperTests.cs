@@ -27,18 +27,6 @@ namespace TrafficFilter.Tests
         }
 
         [Fact]
-        public void GetIPAddressForReverseProxyShouldReturnNullOnNullContext()
-        {
-            //Arrange
-
-            //Act
-            var ipAddress = ((HttpContext)null).GetIPAddress(true);
-
-            //Assert
-            ipAddress.Should().BeNull();
-        }
-
-        [Fact]
         public void GetIPAddressShouldReturnAddressIfRemoteAddressIsSet()
         {
             //Arrange
@@ -51,73 +39,10 @@ namespace TrafficFilter.Tests
             contextAccessor.HttpContext.Request.Scheme.Returns("https");
 
             //Act
-            var ipAddress = contextAccessor.HttpContext.GetIPAddress(false);
+            var ipAddress = contextAccessor.HttpContext.GetIPAddress();
 
             //Assert
             ipAddress.Should().BeEquivalentTo(ipAddress);
-        }
-
-        [Fact]
-        public void GetIPAddressShouldReturnAddressIfBehindReverseProxy()
-        {
-            //Arrange
-            var contextAccessor = Substitute.For<IHttpContextAccessor>();
-            contextAccessor.HttpContext.Connection.RemoteIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
-            contextAccessor.HttpContext.Request.Host.Returns(new HostString("192.168.1.1"));
-            contextAccessor.HttpContext.Request.PathBase.Returns(new PathString("/basepath"));
-            contextAccessor.HttpContext.Request.Path.Returns(new PathString("/path"));
-            contextAccessor.HttpContext.Request.QueryString.Returns(new QueryString("?a=1"));
-            contextAccessor.HttpContext.Request.Scheme.Returns("https");
-
-            contextAccessor.HttpContext.Request.Headers["X_FORWARDED_FOR"] = "192.168.0.1, 192.168.10.20";
-
-            //Act
-            var ipAddress = contextAccessor.HttpContext.GetIPAddress(true);
-
-            //Assert
-            ipAddress.Should().BeEquivalentTo(IPAddress.Parse("192.168.10.20"));
-        }
-
-        [Fact]
-        public void GetIPAddressShouldFallbackToDefaultRemoteAddress()
-        {
-            //Arrange
-            var contextAccessor = Substitute.For<IHttpContextAccessor>();
-            contextAccessor.HttpContext.Connection.RemoteIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
-            contextAccessor.HttpContext.Request.Host.Returns(new HostString("192.168.1.1"));
-            contextAccessor.HttpContext.Request.PathBase.Returns(new PathString("/basepath"));
-            contextAccessor.HttpContext.Request.Path.Returns(new PathString("/path"));
-            contextAccessor.HttpContext.Request.QueryString.Returns(new QueryString("?a=1"));
-            contextAccessor.HttpContext.Request.Scheme.Returns("https");
-
-            contextAccessor.HttpContext.Request.Headers["X_FORWARDED_FOR"] = ",";
-
-            //Act
-            var ipAddress = contextAccessor.HttpContext.GetIPAddress(true);
-
-            //Assert
-            ipAddress.Should().BeEquivalentTo(IPAddress.Parse("192.168.1.1"));
-        }
-
-        [Fact]
-        public void GetIPAddressShouldReturnAddressIfBehindReverseProxyCF()
-        {
-            //Arrange
-            var contextAccessor = Substitute.For<IHttpContextAccessor>();
-            contextAccessor.HttpContext.Connection.RemoteIpAddress.Returns(IPAddress.Parse("192.168.1.1"));
-            contextAccessor.HttpContext.Request.Host.Returns(new HostString("192.168.1.1"));
-            contextAccessor.HttpContext.Request.PathBase.Returns(new PathString("/basepath"));
-            contextAccessor.HttpContext.Request.Path.Returns(new PathString("/path"));
-            contextAccessor.HttpContext.Request.QueryString.Returns(new QueryString("?a=1"));
-            contextAccessor.HttpContext.Request.Scheme.Returns("https");
-
-            contextAccessor.HttpContext.Request.Headers["CF-Connecting-IP"] = "192.168.10.20";
-
-            //Act
-            var ipAddress = contextAccessor.HttpContext.GetIPAddress(true);
-
-            //Assert
-            ipAddress.Should().BeEquivalentTo(IPAddress.Parse("192.168.10.20"));
         }
 
         [Fact]
@@ -133,7 +58,7 @@ namespace TrafficFilter.Tests
             contextAccessor.HttpContext.Request.Scheme.Returns("https");
 
             //Act
-            var ipAddress = contextAccessor.HttpContext.GetIPAddress(true);
+            var ipAddress = contextAccessor.HttpContext.GetIPAddress();
 
             //Assert
             ipAddress.Should().BeEquivalentTo(IPAddress.Parse("192.168.1.1"));
@@ -152,7 +77,7 @@ namespace TrafficFilter.Tests
             };
 
             //Act
-            _ = httpContext.GetIPAddress(false);
+            _ = httpContext.GetIPAddress();
             var ipAddress = httpContext.GetIPAddress();
 
             //Assert
@@ -169,7 +94,7 @@ namespace TrafficFilter.Tests
             };
 
             //Act
-            var ipAddress = httpContext.GetIPAddress(false);
+            var ipAddress = httpContext.GetIPAddress();
 
             //Assert
             ipAddress.Should().BeNull();
