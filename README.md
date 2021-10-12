@@ -52,7 +52,18 @@ namespace SampleWebApp
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            // --- TrafficFilter - topmost ---
+            if (env.IsProduction())
+            {
+                var forwardedOptions = new ForwardedHeadersOptions()
+                {
+                    ForwardedHeaders = ForwardedHeaders.All,
+                    ForwardLimit = null
+                };
+                forwardedOptions.FillKnownNetworks(); // TrafficFilter extension to load Cloudflare IP ranges and fill KnownNetworks (https://www.cloudflare.com/ips/)
+                app.UseForwardedHeaders(forwardedOptions);
+            }
+
+            // --- TrafficFilter ---
             app.UseTrafficFilter();
 
             //...
