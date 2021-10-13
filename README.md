@@ -50,7 +50,7 @@ namespace SampleWebApp
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger)
         {
             if (env.IsProduction())
             {
@@ -59,7 +59,7 @@ namespace SampleWebApp
                     ForwardedHeaders = ForwardedHeaders.All,
                     ForwardLimit = null
                 };
-                forwardedOptions.FillKnownNetworks(); // TrafficFilter extension to load Cloudflare IP ranges and fill KnownNetworks (https://www.cloudflare.com/ips/)
+                forwardedOptions.FillKnownNetworks(logger); // TrafficFilter extension to load Cloudflare IP ranges and fill KnownNetworks (https://www.cloudflare.com/ips/)
                 app.UseForwardedHeaders(forwardedOptions);
             }
 
@@ -130,7 +130,9 @@ Rate limiting is applied per IP address / Request Path.
 
 Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
 
-To support Cloudflare setup, use `forwardedOptions.FillKnownNetworks()` extension method to load and populate known networks (see `SampleWebApp`)
+To support Cloudflare setup, use `forwardedOptions.FillKnownNetworks()` extension method to load and populate known networks.
+
+Take a look at `SampleWebApp` for configuration details if needed.
 
 ## Credits
 Icons made by [Freepik](https://www.freepik.com) from [www.flaticon.com](https://www.flaticon.com/)
