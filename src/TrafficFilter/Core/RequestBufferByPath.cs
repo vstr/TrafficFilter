@@ -4,12 +4,12 @@ using System.Linq;
 
 namespace TrafficFilter.Core
 {
-    public class RequestBuffer : LinkedList<RequestItem>
+    public class RequestBufferByPath : LinkedList<RequestPathItem>
     {
         private readonly int _requestCountLimit;
         private readonly TimeSpan _expiresIn;
 
-        public RequestBuffer(int requestCountLimit, TimeSpan expiresIn)
+        public RequestBufferByPath(int requestCountLimit, TimeSpan expiresIn)
         {
             _requestCountLimit = requestCountLimit;
             _expiresIn = expiresIn;
@@ -21,7 +21,7 @@ namespace TrafficFilter.Core
             var dateTimeUtcExpired = dateTimeUtcNow - _expiresIn;
             var itemHashCode = requestPath.GetHashCode();
 
-            var requestItem = new RequestItem()
+            var requestItem = new RequestPathItem()
             {
                 Created = dateTimeUtcNow,
                 RequestHash = itemHashCode
@@ -40,7 +40,7 @@ namespace TrafficFilter.Core
         }
     }
 
-    public class RequestItem
+    public class RequestPathItem
     {
         public DateTime Created { get; set; }
 

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -15,15 +15,15 @@ using TrafficFilter.Matches;
 
 namespace TrafficFilter.RequestFilters
 {
-    public class RequestFilterRateLimiter : IRequestFilter
+    public class RequestFilterRateLimiterGlobal : IRequestFilter
     {
-        private readonly RequestFilterRateLimiterOptions _options;
-        private readonly Dictionary<IPAddress, RequestBuffer> _requests = new Dictionary<IPAddress, RequestBuffer>();
+        private readonly RequestFilterRateLimiterGlobalOptions _options;
+        private readonly Dictionary<IPAddress, RequestBufferGlobal> _requests = new Dictionary<IPAddress, RequestBufferGlobal>();
         private static SpinLock _spinlock;
         private readonly TimeSpan _expiresIn;
         private readonly IList<IMatch> _whitelistUrlMatches;
 
-        public RequestFilterRateLimiter(IOptions<RequestFilterRateLimiterOptions> options,
+        public RequestFilterRateLimiterGlobal(IOptions<RequestFilterRateLimiterGlobalOptions> options,
             IMatchesFactory matchesFactory)
         {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
@@ -38,7 +38,7 @@ namespace TrafficFilter.RequestFilters
         }
 
         public bool IsEnabled => _options.IsEnabled;
-        public int Order => 3;
+        public int Order => 4;
 
         public bool IsMatch(HttpContext httpContext)
         {
@@ -65,17 +65,17 @@ namespace TrafficFilter.RequestFilters
             {
                 _spinlock.Enter(ref lockTaken);
 
-                if (!_requests.TryGetValue(httpContext.GetIPAddress(), out var list))
+                if (!_requests.TryGetValue(httpContext.GetIPAddress(), out var requestPathBuffer))
                 {
-                    list = new RequestBuffer(_options.RateLimiterRequestLimit, _expiresIn);
-                    _requests[httpContext.GetIPAddress()] = list;
+                    requestPathBuffer = new RequestBufferGlobal(_options.RateLimiterRequestLimit, _expiresIn);
+                    _requests[httpContext.GetIPAddress()] = requestPathBuffer;
                 }
 
-                var isFull = list.IsFull(httpContext.Request.Path);
+                var isFull = requestPathBuffer.IsFull();
 
                 if (isFull)
                 {
-                    httpContext.Log(LogLevel.Information, $"Rate limit detected for {httpContext.GetIPAddress()} path {httpContext.Request.Path}");
+                    httpContext.Log(LogLevel.Information, $"Rate limit Global detected for {httpContext.GetIPAddress()} path {httpContext.Request.Path}");
                 }
 
                 return isFull;

@@ -87,7 +87,7 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
         {
           "Type": "EndsWith",
           "Match": ".xml"
-        },       
+        },
         {
           "Type": "Contains",
           "Match": "mysql"
@@ -108,14 +108,25 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
         }
       ]
     },
-    "RateLimiter": {
+    "RateLimiterByPath": {
       "IsEnabled": true,
       "RateLimiterWindowSeconds": 2,
-      "RateLimiterRequestLimit": 3,
+      "RateLimiterRequestLimit": 2,
       "WhitelistUrls": [
         {
           "Type": "EndsWith",
           "Match": ".mp4"
+        }
+      ]
+    },
+    "RateLimiterGlobal": {
+      "IsEnabled": true,
+      "RateLimiterWindowSeconds": 2,
+      "RateLimiterRequestLimit": 2,
+      "WhitelistUrls": [
+        {
+          "Type": "Contains",
+          "Match": "upload"
         }
       ]
     }
@@ -126,9 +137,10 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
 
 If any of the enabled filters matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
 
-Rate limiting is applied per IP address / Request Path.
-
 Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
+
+Rate limiting for `RateLimiterByPath` is applied per IP address / HttpRequest.Path (ignoring query string)
+Rate limiting for `RateLimiterGlobal` is applied per IP address / any request
 
 To support Cloudflare setup, use `forwardedOptions.FillKnownNetworks()` extension method to load and populate known networks.
 

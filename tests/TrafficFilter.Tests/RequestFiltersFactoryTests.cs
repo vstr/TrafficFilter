@@ -21,7 +21,8 @@ namespace TrafficFilter.Tests
             var serviceProvider = Substitute.For<IServiceProvider>();
             _ = serviceProvider.GetService(typeof(RequestFilterUrl)).Returns(requestFilter);
             _ = serviceProvider.GetService(typeof(RequestFilterHeaders)).Returns(requestFilter);
-            _ = serviceProvider.GetService(typeof(RequestFilterRateLimiter)).Returns(requestFilter);
+            _ = serviceProvider.GetService(typeof(RequestFilterRateLimiterGlobal)).Returns(requestFilter);
+            _ = serviceProvider.GetService(typeof(RequestFilterRateLimiterByPath)).Returns(requestFilter);
             var factory = new RequestFiltersFactory(serviceProvider);
 
             //Act
@@ -29,7 +30,7 @@ namespace TrafficFilter.Tests
 
             //Assert
             requestFilters.Should().NotBeNull();
-            requestFilters.Count.Should().Be(3);
+            requestFilters.Count.Should().Be(4);
         }
     }
 }

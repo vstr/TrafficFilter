@@ -25,7 +25,8 @@ namespace TrafficFilter
 
             _ = services.AddSingleton<RequestFilterUrl>();
             _ = services.AddSingleton<RequestFilterHeaders>();
-            _ = services.AddSingleton<RequestFilterRateLimiter>();
+            _ = services.AddSingleton<RequestFilterRateLimiterGlobal>();
+            _ = services.AddSingleton<RequestFilterRateLimiterByPath>();
 
             _ = services.AddOptions();
 
@@ -39,9 +40,13 @@ namespace TrafficFilter
                 .GetSection(TrafficFilterOptions.TrafficFilter)
                 .GetSection(RequestFilterHeadersOptions.RequestFilterHeaders));
 
-            _ = services.Configure<RequestFilterRateLimiterOptions>(configuration
+            _ = services.Configure<RequestFilterRateLimiterGlobalOptions>(configuration
                 .GetSection(TrafficFilterOptions.TrafficFilter)
-                .GetSection(RequestFilterRateLimiterOptions.RateLimiter));
+                .GetSection(RequestFilterRateLimiterGlobalOptions.RateLimiterGlobal));
+
+            _ = services.Configure<RequestFilterRateLimiterByPathOptions>(configuration
+                .GetSection(TrafficFilterOptions.TrafficFilter)
+                .GetSection(RequestFilterRateLimiterByPathOptions.RateLimiterByPath));
 
             return services;
         }
