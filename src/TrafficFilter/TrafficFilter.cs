@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -49,12 +50,25 @@ namespace TrafficFilter
                 if (requestFilter.IsMatch(httpContext))
                 {
                     _ipBlacklist.Add(ipAddress, _trafficFilterOptions.IPBlacklistTimeoutSeconds);
-                    httpContext.Log(LogLevel.Information, $"Adding IP {ipAddress} to blacklist");
+                    LogRequest(httpContext, ipAddress);
                     return false;
                 }
             }
 
             return true;
+        }
+
+        private void LogRequest(HttpContext httpContext, IPAddress ipAddress)
+        {
+            httpContext.Log(LogLevel.Information, $"Adding IP {ipAddress} to blacklist");
+            httpContext.Log(LogLevel.Information, $" Request|Url|{httpContext.GetDisplayUrl()}");
+            if (httpContext.Request.Headers != null)
+            {
+                foreach (var h in httpContext.Request.Headers)
+                {
+                    httpContext.Log(LogLevel.Information, $" Header|{h.Key}|{h.Value}");
+                }
+            }
         }
     }
 }
