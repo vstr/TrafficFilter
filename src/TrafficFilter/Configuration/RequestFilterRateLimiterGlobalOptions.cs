@@ -4,7 +4,7 @@ namespace TrafficFilter.Configuration
 {
     public class RequestFilterRateLimiterGlobalOptions
     {
-        public const string RateLimiterGlobal = "RateLimiterGlobal";
+        public const string RateLimiterGlobal = nameof(RateLimiterGlobal);
 
         public bool IsEnabled { get; set; }
         public int RateLimiterWindowSeconds { get; set; } = 1;

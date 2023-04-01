@@ -1,11 +1,12 @@
-﻿using System.Collections.Generic;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
+
+using System.Collections.Generic;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Extensions;
@@ -31,7 +32,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = false
             });
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+
+            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
 
             var httpContext = new DefaultHttpContext();
 
@@ -64,7 +67,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+
+            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
 
@@ -92,7 +97,9 @@ namespace TrafficFilter.Tests
                 RateLimiterWindowSeconds = 1
             });
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+
+            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
@@ -128,7 +135,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+
+            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
@@ -160,7 +169,9 @@ namespace TrafficFilter.Tests
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+
+            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
 
             //Act
             var isLimitReached = rateLimiter.IsMatch(httpContextAccessor.HttpContext);

@@ -1,10 +1,10 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
+
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Extensions;
@@ -16,8 +16,11 @@ namespace TrafficFilter.RequestFilters
     {
         private readonly RequestFilterUrlOptions _options;
         private readonly IList<IMatch> _matches;
+        private readonly ILogger<RequestFilterUrl> _logger;
 
-        public RequestFilterUrl(IOptions<RequestFilterUrlOptions> options, IMatchesFactory matchesFactory)
+        public RequestFilterUrl(IOptions<RequestFilterUrlOptions> options,
+            IMatchesFactory matchesFactory,
+            ILogger<RequestFilterUrl> logger)
         {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
             if (matchesFactory == null) { throw new ArgumentNullException(nameof(matchesFactory)); }
@@ -27,6 +30,7 @@ namespace TrafficFilter.RequestFilters
             _matches = _options.Matches != null
                 ? _options.Matches.Select(m => matchesFactory.GetInstance(m.Type, m.Match)).ToList()
                 : new List<IMatch>();
+            _logger = logger;
         }
 
         public bool IsEnabled => _options.IsEnabled;
@@ -43,7 +47,7 @@ namespace TrafficFilter.RequestFilters
 
             if (string.IsNullOrEmpty(displayUrl))
             {
-                httpContext.Log(LogLevel.Information, $"Bad Url Request detected - '{nameof(displayUrl)}' is null");
+                _logger.LogInformation($"Bad Url Request detected - '{nameof(displayUrl)}' is null");
                 return true;
             }
 
@@ -51,7 +55,7 @@ namespace TrafficFilter.RequestFilters
             {
                 if (m.IsMatch(displayUrl))
                 {
-                    httpContext.Log(LogLevel.Information, $"Bad Url Request detected - '{displayUrl}' match '{m.Match}'");
+                    _logger.LogInformation($"Bad Url Request detected - '{displayUrl}' match '{m.Match}'");
                     return true;
                 }
             }

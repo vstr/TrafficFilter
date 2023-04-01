@@ -1,12 +1,13 @@
-﻿using System.Collections.Generic;
-using System.Net;
-
-using FluentAssertions;
+﻿using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
+
+using System.Collections.Generic;
+using System.Net;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Core;
@@ -46,7 +47,9 @@ namespace TrafficFilter.Tests
             {
             });
 
-            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);
+            var logger = Substitute.For<ILogger<TrafficFilter>>();
+
+            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options, logger);
 
             //Act
             var isAllowed = trafficFilter.IsAllowed(httpContext);
@@ -84,7 +87,9 @@ namespace TrafficFilter.Tests
             {
             });
 
-            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);
+            var logger = Substitute.For<ILogger<TrafficFilter>>();
+
+            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options, logger);
 
             //Act
             var isAllowed = trafficFilter.IsAllowed(httpContext);
@@ -121,7 +126,9 @@ namespace TrafficFilter.Tests
             {
             });
 
-            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options);
+            var logger = Substitute.For<ILogger<TrafficFilter>>();
+
+            var trafficFilter = new TrafficFilter(ipBlackList, requestFiltersFactory, options, logger);
 
             //Act
             var isAllowed = trafficFilter.IsAllowed(httpContext);

@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading;
-
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Core;
@@ -22,9 +22,11 @@ namespace TrafficFilter.RequestFilters
         private static SpinLock _spinlock;
         private readonly TimeSpan _expiresIn;
         private readonly IList<IMatch> _whitelistUrlMatches;
+        private readonly ILogger<RequestFilterRateLimiterGlobal> _logger;
 
         public RequestFilterRateLimiterGlobal(IOptions<RequestFilterRateLimiterGlobalOptions> options,
-            IMatchesFactory matchesFactory)
+            IMatchesFactory matchesFactory,
+            ILogger<RequestFilterRateLimiterGlobal> logger)
         {
             if (options == null) { throw new ArgumentNullException(nameof(options)); }
             if (matchesFactory == null) { throw new ArgumentNullException(nameof(matchesFactory)); }
@@ -35,6 +37,7 @@ namespace TrafficFilter.RequestFilters
             _whitelistUrlMatches = _options.WhitelistUrls != null
                ? _options.WhitelistUrls.Select(m => matchesFactory.GetInstance(m.Type, m.Match)).ToList()
                : new List<IMatch>();
+            _logger = logger;
         }
 
         public bool IsEnabled => _options.IsEnabled;
@@ -75,7 +78,7 @@ namespace TrafficFilter.RequestFilters
 
                 if (isFull)
                 {
-                    httpContext.Log(LogLevel.Information, $"Rate limit Global detected for {httpContext.GetIPAddress()} path {httpContext.Request.Path}");
+                    _logger.LogInformation($"Rate limit Global detected for {httpContext.GetIPAddress()} path {httpContext.Request.Path}");
                 }
 
                 return isFull;

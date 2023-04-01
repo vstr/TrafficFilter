@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
+
+using System.Collections.Generic;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Extensions;
@@ -47,7 +48,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
@@ -85,7 +88,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
@@ -118,7 +123,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
@@ -142,7 +149,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = false
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);
@@ -167,7 +176,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterHeaders>>();
+
+            var requestFilterHeaders = new RequestFilterHeaders(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterHeaders.IsMatch(httpContextAccessor.HttpContext);

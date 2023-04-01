@@ -1,11 +1,12 @@
-using System.Collections.Generic;
-
 using FluentAssertions;
 
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 using NSubstitute;
+
+using System.Collections.Generic;
 
 using TrafficFilter.Configuration;
 using TrafficFilter.Extensions;
@@ -44,7 +45,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -69,7 +72,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -94,7 +99,9 @@ namespace TrafficFilter.Tests
                 Matches = new List<MatchItemUrl>()
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -125,7 +132,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -156,7 +165,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -187,7 +198,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -218,7 +231,9 @@ namespace TrafficFilter.Tests
                 }
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -242,7 +257,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = false
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContextAccessor.HttpContext);
@@ -265,7 +282,9 @@ namespace TrafficFilter.Tests
                 IsEnabled = true
             });
 
-            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory);
+            var logger = Substitute.For<ILogger<RequestFilterUrl>>();
+
+            var requestFilterUrl = new RequestFilterUrl(options, matchesFactory, logger);
 
             //Act
             var isMatch = requestFilterUrl.IsMatch(httpContext);

@@ -1,11 +1,9 @@
-using System.Threading.Tasks;
-
 using Microsoft.AspNetCore.Http;
+
+using System.Threading.Tasks;
 
 namespace TrafficFilter
 {
-
-
     public class TrafficFilterMiddleware
     {
         private readonly RequestDelegate _next;
