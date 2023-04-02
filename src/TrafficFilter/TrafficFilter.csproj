@@ -2,16 +2,18 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
-    <Version>1.0.4.2</Version>
+    <Version>1.0.5</Version>
     <Authors>vstr</Authors>
     <Company />
     <Description>ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.</Description>
     <PackageLicenseExpression>Apache-2.0+</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/vstr/TrafficFilter</PackageProjectUrl>
-    <RepositoryUrl></RepositoryUrl>
+    <PackageProjectUrl>https://github.com/vstr/TrafficFilter</PackageProjectUrl>    
+    <PackageId>TrafficFilter</PackageId>
     <PackageTags>middleware, aspnetcore, firewall, rate-limit, request, filter, throttle</PackageTags>
     <PackageIcon>TrafficFilter128x128.png</PackageIcon>
     <PackageIconUrl />
+    <RepositoryUrl />
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
   </PropertyGroup>
 
   <ItemGroup>
