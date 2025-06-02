@@ -43,7 +43,7 @@ namespace TrafficFilter.Tests
 
             //Assert
             isLimitReached.Should().BeFalse();
-            rateLimiter.Order.Should().Be(4);
+            rateLimiter.Order.Should().Be(40);
         }
 
         [Fact]

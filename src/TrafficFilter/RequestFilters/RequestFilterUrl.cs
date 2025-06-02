@@ -30,11 +30,12 @@ namespace TrafficFilter.RequestFilters
             _matches = _options.Matches != null
                 ? _options.Matches.Select(m => matchesFactory.GetInstance(m.Type, m.Match)).ToList()
                 : new List<IMatch>();
+
             _logger = logger;
         }
 
         public bool IsEnabled => _options.IsEnabled;
-        public int Order => 1;
+        public int Order => 10;
 
         public bool IsMatch(HttpContext httpContext)
         {

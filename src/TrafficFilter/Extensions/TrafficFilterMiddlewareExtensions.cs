@@ -23,6 +23,7 @@ namespace TrafficFilter
             _ = services.AddSingleton<ITrafficFilter, TrafficFilter>();
             _ = services.AddSingleton<IRequestFiltersFactory, RequestFiltersFactory>();
 
+            _ = services.AddSingleton<RequestFilterIp>();
             _ = services.AddSingleton<RequestFilterUrl>();
             _ = services.AddSingleton<RequestFilterHeaders>();
             _ = services.AddSingleton<RequestFilterRateLimiterGlobal>();
@@ -31,6 +32,10 @@ namespace TrafficFilter
             _ = services.AddOptions();
 
             _ = services.Configure<TrafficFilterOptions>(configuration.GetSection(TrafficFilterOptions.TrafficFilter));
+
+            _ = services.Configure<RequestFilterIpOptions>(configuration
+               .GetSection(TrafficFilterOptions.TrafficFilter)
+               .GetSection(RequestFilterIpOptions.RequestFilterIp));
 
             _ = services.Configure<RequestFilterUrlOptions>(configuration
                 .GetSection(TrafficFilterOptions.TrafficFilter)

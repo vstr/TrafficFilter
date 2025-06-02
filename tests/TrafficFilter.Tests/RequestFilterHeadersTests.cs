@@ -57,7 +57,7 @@ namespace TrafficFilter.Tests
 
             //Assert
             isMatch.Should().BeFalse();
-            requestFilterHeaders.Order.Should().Be(2);
+            requestFilterHeaders.Order.Should().Be(20);
         }
 
         [Fact]

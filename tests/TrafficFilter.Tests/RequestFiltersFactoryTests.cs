@@ -19,6 +19,7 @@ namespace TrafficFilter.Tests
             var requestFilter = Substitute.For<IRequestFilter>();
 
             var serviceProvider = Substitute.For<IServiceProvider>();
+            _ = serviceProvider.GetService(typeof(RequestFilterIp)).Returns(requestFilter);
             _ = serviceProvider.GetService(typeof(RequestFilterUrl)).Returns(requestFilter);
             _ = serviceProvider.GetService(typeof(RequestFilterHeaders)).Returns(requestFilter);
             _ = serviceProvider.GetService(typeof(RequestFilterRateLimiterGlobal)).Returns(requestFilter);
@@ -30,7 +31,7 @@ namespace TrafficFilter.Tests
 
             //Assert
             requestFilters.Should().NotBeNull();
-            requestFilters.Count.Should().Be(4);
+            requestFilters.Count.Should().Be(5);
         }
     }
 }

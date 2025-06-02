@@ -41,7 +41,7 @@ namespace TrafficFilter.RequestFilters
         }
 
         public bool IsEnabled => _options.IsEnabled;
-        public int Order => 4;
+        public int Order => 40;
 
         public bool IsMatch(HttpContext httpContext)
         {
