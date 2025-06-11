@@ -36,6 +36,8 @@ namespace TrafficFilter.CoreFirewall
 
             if (_options.IsEnabled)
             {
+                _options.Validate();
+
                 _blockRules = _options.BlockRules != null
                     ? _options.BlockRules.Select(r => RuleBase.BuildRule(_matchesFactory, r)).ToList()
                     : new List<RuleBase>();

@@ -40,6 +40,8 @@ namespace TrafficFilter.CoreRateLimiter
 
             if (_options.IsEnabled)
             {
+                _options.Validate();
+
                 _whitelistRules = _options.WhitelistRules != null
                    ? _options.WhitelistRules.Select(r => RuleBase.BuildRule(matchesFactory, r)).ToList()
                    : new List<RuleBase>();

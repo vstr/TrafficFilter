@@ -35,11 +35,11 @@ namespace TrafficFilter.Extensions
 
             _ = services.Configure<FirewallOptions>(configuration
                 .GetSection(TrafficFilterOptions.TrafficFilter)
-                .GetSection(FirewallOptions.Firewall));
+                .GetSection(FirewallOptions.SectionName));
 
             _ = services.Configure<RateLimiterOptions>(configuration
                 .GetSection(TrafficFilterOptions.TrafficFilter)
-                .GetSection(RateLimiterOptions.RateLimiter));
+                .GetSection(RateLimiterOptions.SectionName));
 
             return services;
         }
