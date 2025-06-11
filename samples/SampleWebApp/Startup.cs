@@ -5,20 +5,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-
-using TrafficFilter;
 using TrafficFilter.Extensions;
 
 namespace SampleWebApp
 {
-    public class Startup
+    public class Startup(IConfiguration configuration)
     {
-        public Startup(IConfiguration configuration)
-        {
-            Configuration = configuration;
-        }
-
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; } = configuration;
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -44,7 +37,7 @@ namespace SampleWebApp
                     ForwardedHeaders = ForwardedHeaders.All,
                     ForwardLimit = null
                 };
-                forwardedOptions.FillKnownNetworks(logger); // TrafficFilter extension to load Cloudflare IP ranges and fill KnownNetworks (https://www.cloudflare.com/ips/)
+                forwardedOptions.LoadCloudflareKnownNetworks(logger); // TrafficFilter extension to load Cloudflare IP ranges and loads KnownNetworks (https://www.cloudflare.com/ips/)
                 app.UseForwardedHeaders(forwardedOptions);
             }
 

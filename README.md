@@ -1,21 +1,19 @@
 # ![TrafficFilter](https://raw.githubusercontent.com/vstr/TrafficFilter/main/assets/TrafficFilter64x64.png) TrafficFilter
 
-ASP.NET Core middleware for request filtering and rate limiting. Configuration based URL Filter, Headers Filter and Rate Limiter.
+Tiny ASP.NET Core middleware for request filtering and rate limiting. Configuration based Firewall and RateLimeter.
 
 # About
 
-TrafficFilter is an ASP.NET Core middleware that enables request filtering and rate-limiting. Once any filtering rule matches, the requester's IP address is blacklisted for the duration of a configured period. The following request filters are available:
-- URL
-- Headers
-- Rate Limiting
+TrafficFilter is a lightweight ASP.NET Core middleware that enables request filtering and rate-limiting. Once any firewall rule or rate limiting matches, the requester's IP address is blacklisted for the duration of a configured period. The following rules are available:
+- Request URL
+- Request Header
+- Request IP Address
 
-Each filter can be enabled and configured in the app config file.
+Each rule can be configured in the appsettings.json file.
 
-TrafficFilter may be useful in scenarios when you want to protect your origin server resources from scanners/bots that try to access non-existent URLs.
+TrafficFilter may be useful in scenarios when you want to protect your origin server resources from unwanted scanners/bots.
 
-Another use case could be protecting the app from accessing it using a public IP address.
-
-TrafficFilter can also block requests from further processing if the configured rate limit is reached.
+TrafficFilter will block requests from further processing if the configured rule matched or requests rate limit is reached.
 
 ## Getting Started
 
@@ -75,74 +73,54 @@ namespace SampleWebApp
 Add TrafficFilter configuration section to `appsettings.json`, modify it as needed:
 
 ```json
-"TrafficFilter": {
-    "IPBlacklistTimeoutSeconds": 5,
-    "RequestFilterUrl": {
-      "IsEnabled": true,
-      "Matches": [
-        {
-          "Type": "Regex",
-          "Match": "https?:\\/\\/[\\d*\\.*]+" //Pattern for IP Address based Url
+    "TrafficFilter": {
+        "IPBlacklistTimeoutSeconds": 5,
+        "Firewall": {
+            "IsEnabled": true,
+            "BlockRules": [
+                {
+                    "RequestPart": "Url", // Possible options: "Url|Header:user-agent|IP"
+                    "MatchType": "EndsWith", // Possible options: "Regex|Contains|StartsWith|EndsWith|Exact|NullOrEmpty"
+                    "Match": ".php"
+                },
+                {
+                    "RequestPart": "IP",
+                    "MatchType": "Regex",
+                    "Match": "10\\.10\\.\\d+\\.\\d+"
+                },
+                {
+                    "RequestPart": "Header:user-agent",
+                    "MatchType": "EndsWith",
+                    "Match": "BadBot"
+                }
+            ]
         },
-        {
-          "Type": "EndsWith",
-          "Match": ".xml"
-        },
-        {
-          "Type": "Contains",
-          "Match": "mysql"
-        },
-        {
-          "Type": "StartsWith",
-          "Match": "ftp"
+        "RateLimiter": {
+            "IsEnabled": true,
+            "WindowSeconds": 2,
+            "RequestsLimit": 20, // If there were 20 requests (RequestsLimit) from the same IP in the last 2 seconds (WindowSeconds), the IP will be blacklisted
+            "WhitelistRules": [
+                {
+                    "RequestPart": "Url",
+                    "MatchType": "EndsWith",
+                    "Match": ".jpg"
+                }
+            ]
         }
-      ]
-    },
-    "RequestFilterHeaders": {
-      "IsEnabled": true,
-      "Matches": [
-        {
-          "Header": "user-agent",
-          "Type": "Contains",
-          "Match": "x-bot"
-        }
-      ]
-    },
-    "RateLimiterByPath": {
-      "IsEnabled": true,
-      "RateLimiterWindowSeconds": 2,
-      "RateLimiterRequestLimit": 2,
-      "WhitelistUrls": [
-        {
-          "Type": "EndsWith",
-          "Match": ".mp4"
-        }
-      ]
-    },
-    "RateLimiterGlobal": {
-      "IsEnabled": true,
-      "RateLimiterWindowSeconds": 2,
-      "RateLimiterRequestLimit": 2,
-      "WhitelistUrls": [
-        {
-          "Type": "Contains",
-          "Match": "upload"
-        }
-      ]
     }
-  }
 ```
 
 ## Documentation
 
-If any of the enabled filters matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
+If any of the enabled rules matches the incoming request, the requester's IP address is added to the blacklist for the duration of `IPBlacklistTimeoutSeconds` and `HttpStatusCode.TooManyRequests` is returned.
 
-Possible values for Match Type are: `StartsWith`, `Contains`, `EndsWith` and `Regex`.
+Possible values for MatchType are: `Regex`, `Contains`, `StartsWith`, `EndsWith`, `Exact`, `NullOrEmpty`.
 
-Rate limiting for `RateLimiterByPath` is applied per IP address / HttpRequest.Path (ignoring query string)
-Rate limiting for `RateLimiterGlobal` is applied per IP address / any request
+Possible values for RequestPart are: `Url`, `Header:header-name`, `IP`.
 
-To support Cloudflare setup, use `forwardedOptions.FillKnownNetworks()` extension method to load and populate known networks.
+Rate limiting `RateLimiter` is applied per IP address
+
+To support deployments bihind Cloudflare, use `forwardedOptions.LoadCloudflareKnownNetworks()` extension method to load and populate known networks.
 
 Take a look at `SampleWebApp` for configuration details if needed.
 

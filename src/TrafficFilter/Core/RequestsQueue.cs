@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 namespace TrafficFilter.Core
 {
-    public class RequestBufferGlobal : LinkedList<DateTime>
+    public class RequestsQueue : LinkedList<DateTime>
     {
         private readonly int _requestCountLimit;
         private readonly TimeSpan _expiresIn;
 
-        public RequestBufferGlobal(int requestCountLimit, TimeSpan expiresIn)
+        public RequestsQueue(int requestCountLimit, TimeSpan expiresIn)
         {
             _requestCountLimit = requestCountLimit;
             _expiresIn = expiresIn;

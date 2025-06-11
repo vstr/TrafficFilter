@@ -15,7 +15,7 @@ namespace TrafficFilter.Matches
 
         public bool IsMatch(string source)
         {
-            return string.Equals(source, _match, StringComparison.InvariantCultureIgnoreCase);
+            return string.Equals(source.Trim(), _match, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

@@ -9,13 +9,13 @@ using Xunit;
 
 namespace TrafficFilter.Tests
 {
-    public class RequestBufferGlobalTests
+    public class RequestQueueTests
     {
         [Fact]
         public void SameRequestWithinAllowedTime()
         {
             //Arrange
-            var buff = new RequestBufferGlobal(3, TimeSpan.FromSeconds(1));
+            var buff = new RequestsQueue(3, TimeSpan.FromSeconds(1));
 
             //Act
             //Assert
@@ -29,7 +29,7 @@ namespace TrafficFilter.Tests
         public void RequestsWithinAllowedTimeWithTimeout()
         {
             //Arrange
-            var buff = new RequestBufferGlobal(3, TimeSpan.FromMilliseconds(20));
+            var buff = new RequestsQueue(3, TimeSpan.FromMilliseconds(20));
 
             //Act
             //Assert

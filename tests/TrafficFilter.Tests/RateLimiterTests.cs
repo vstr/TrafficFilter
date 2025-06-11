@@ -1,24 +1,19 @@
 ﻿using FluentAssertions;
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
 using NSubstitute;
-
-using System.Collections.Generic;
-
 using TrafficFilter.Configuration;
+using TrafficFilter.CoreRateLimiter;
+using TrafficFilter.CoreRateLimiter.Configuration;
 using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
-using TrafficFilter.RequestFilters;
 using TrafficFilter.Tests.Common;
-
 using Xunit;
 
 namespace TrafficFilter.Tests
 {
-    public class RequestFilterRateLimiterGlobalTests
+    public class RateLimiterTests
     {
         [Fact]
         public void IsEnabledFalseReturnsIsLimitReachedFalse()
@@ -26,15 +21,15 @@ namespace TrafficFilter.Tests
             //Arrange
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
-            var options = Substitute.For<IOptions<RequestFilterRateLimiterGlobalOptions>>();
-            options.Value.Returns(new RequestFilterRateLimiterGlobalOptions()
+            var options = Substitute.For<IOptions<RateLimiterOptions>>();
+            options.Value.Returns(new RateLimiterOptions()
             {
                 IsEnabled = false
             });
 
-            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+            var logger = Substitute.For<ILogger<RateLimiter>>();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
+            var rateLimiter = new RateLimiter(options, matchesFactory, logger);
 
             var httpContext = new DefaultHttpContext();
 
@@ -43,7 +38,6 @@ namespace TrafficFilter.Tests
 
             //Assert
             isLimitReached.Should().BeFalse();
-            rateLimiter.Order.Should().Be(40);
         }
 
         [Fact]
@@ -53,23 +47,24 @@ namespace TrafficFilter.Tests
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("Contains", ".mp4").Returns(new MatchContains(".mp4"));
 
-            var options = Substitute.For<IOptions<RequestFilterRateLimiterGlobalOptions>>();
-            options.Value.Returns(new RequestFilterRateLimiterGlobalOptions()
+            var options = Substitute.For<IOptions<RateLimiterOptions>>();
+            options.Value.Returns(new RateLimiterOptions()
             {
                 IsEnabled = true,
-                RateLimiterRequestLimit = 1,
-                RateLimiterWindowSeconds = 1,
-                WhitelistUrls = new List<MatchItemUrl>() { new MatchItemUrl()
+                RequestsLimit = 1,
+                WindowSeconds = 1,
+                WhitelistRules = [ new RuleOptions()
                         {
-                            Type = "Contains",
-                            Match = ".mp4"
+                            MatchType = "Contains",
+                            Match = ".mp4",
+                            RequestPart = "Url"
                         }
-                }
+                ]
             });
 
-            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+            var logger = Substitute.For<ILogger<RateLimiter>>();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
+            var rateLimiter = new RateLimiter(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
 
@@ -89,17 +84,17 @@ namespace TrafficFilter.Tests
             //Arrange
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
-            var options = Substitute.For<IOptions<RequestFilterRateLimiterGlobalOptions>>();
-            options.Value.Returns(new RequestFilterRateLimiterGlobalOptions()
+            var options = Substitute.For<IOptions<RateLimiterOptions>>();
+            options.Value.Returns(new RateLimiterOptions()
             {
                 IsEnabled = true,
-                RateLimiterRequestLimit = 1,
-                RateLimiterWindowSeconds = 1
+                RequestsLimit = 1,
+                WindowSeconds = 1
             });
 
-            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+            var logger = Substitute.For<ILogger<RateLimiter>>();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
+            var rateLimiter = new RateLimiter(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
@@ -121,23 +116,24 @@ namespace TrafficFilter.Tests
             var matchesFactory = Substitute.For<IMatchesFactory>();
             matchesFactory.GetInstance("Contains", ".mp3").Returns(new MatchContains(".mp3"));
 
-            var options = Substitute.For<IOptions<RequestFilterRateLimiterGlobalOptions>>();
-            options.Value.Returns(new RequestFilterRateLimiterGlobalOptions()
+            var options = Substitute.For<IOptions<RateLimiterOptions>>();
+            options.Value.Returns(new RateLimiterOptions()
             {
                 IsEnabled = true,
-                RateLimiterRequestLimit = 1,
-                RateLimiterWindowSeconds = 1,
-                WhitelistUrls = new List<MatchItemUrl>() { new MatchItemUrl()
+                RequestsLimit = 1,
+                WindowSeconds = 1,
+                WhitelistRules = [ new RuleOptions()
                         {
-                            Type = "Contains",
-                            Match = ".mp3"
+                            MatchType = "Contains",
+                            Match = ".mp3",
+                            RequestPart = "Url"
                         }
-                }
+                ]
             });
 
-            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+            var logger = Substitute.For<ILogger<RateLimiter>>();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
+            var rateLimiter = new RateLimiter(options, matchesFactory, logger);
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
@@ -158,20 +154,20 @@ namespace TrafficFilter.Tests
             //Arrange
             var matchesFactory = Substitute.For<IMatchesFactory>();
 
-            var options = Substitute.For<IOptions<RequestFilterRateLimiterGlobalOptions>>();
-            options.Value.Returns(new RequestFilterRateLimiterGlobalOptions()
+            var options = Substitute.For<IOptions<RateLimiterOptions>>();
+            options.Value.Returns(new RateLimiterOptions()
             {
                 IsEnabled = true,
-                RateLimiterRequestLimit = 1,
-                RateLimiterWindowSeconds = 1
+                RequestsLimit = 1,
+                WindowSeconds = 1
             });
 
             var httpContextAccessor = TestHelper.BuildHttpContextAccessor("https", "192.168.0.1", "/home/intro.mp4");
             _ = httpContextAccessor.HttpContext.GetIPAddress();
 
-            var logger = Substitute.For<ILogger<RequestFilterRateLimiterGlobal>>();
+            var logger = Substitute.For<ILogger<RateLimiter>>();
 
-            var rateLimiter = new RequestFilterRateLimiterGlobal(options, matchesFactory, logger);
+            var rateLimiter = new RateLimiter(options, matchesFactory, logger);
 
             //Act
             var isLimitReached = rateLimiter.IsMatch(httpContextAccessor.HttpContext);

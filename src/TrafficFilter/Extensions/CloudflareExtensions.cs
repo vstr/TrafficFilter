@@ -12,9 +12,9 @@ namespace TrafficFilter.Extensions
 {
     public static class CloudflareExtensions
     {
-        public static void FillKnownNetworks(this ForwardedHeadersOptions forwardedHeadersOptions, ILogger logger = null)
+        public static void LoadCloudflareKnownNetworks(this ForwardedHeadersOptions forwardedHeadersOptions, ILogger logger = null)
         {
-            logger?.LogInformation($"Filling Cloudflare's KnownNetworks");
+            logger?.LogInformation($"Loading Cloudflare's KnownNetworks");
             foreach (var knownNetwork in GetIPNetworks(logger))
             {
                 var networkSplit = knownNetwork.Split('/');

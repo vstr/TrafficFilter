@@ -1,13 +1,12 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using System;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-
-using System;
-
 using TrafficFilter.Configuration;
 using TrafficFilter.Core;
+using TrafficFilter.CoreFirewall;
+using TrafficFilter.CoreRateLimiter;
 using TrafficFilter.Extensions;
-using TrafficFilter.RequestFilters;
 
 namespace TrafficFilter
 {
@@ -21,20 +20,25 @@ namespace TrafficFilter
     public class TrafficFilter : ITrafficFilter
     {
         private readonly IIpBlacklist _ipBlacklist;
-        private readonly IRequestFiltersFactory _requestFiltersFactory;
         private readonly TrafficFilterOptions _trafficFilterOptions;
         private readonly ILogger<TrafficFilter> _logger;
+        private readonly IFirewall _firewall;
+        private readonly IRateLimiter _rateLimiter;
 
-        public TrafficFilter(IIpBlacklist ipBlacklist,
-            IRequestFiltersFactory requestFiltersFactory,
+        public TrafficFilter(
+            IIpBlacklist ipBlacklist,
+            IFirewall firewall,
+            IRateLimiter rateLimiter,
             IOptions<TrafficFilterOptions> options,
             ILogger<TrafficFilter> logger)
         {
             _ipBlacklist = ipBlacklist ?? throw new ArgumentNullException(nameof(ipBlacklist));
-            _requestFiltersFactory = requestFiltersFactory ?? throw new ArgumentNullException(nameof(requestFiltersFactory));
 
             if (options == null) throw new ArgumentNullException(nameof(options));
             _trafficFilterOptions = options.Value ?? throw new ArgumentNullException(nameof(options.Value));
+
+            _firewall = firewall ?? throw new ArgumentNullException(nameof(firewall), "Firewall cannot return null.");
+            _rateLimiter = rateLimiter ?? throw new ArgumentNullException(nameof(rateLimiter), "RateLimiter cannot return null");
 
             _logger = logger;
         }
@@ -55,14 +59,18 @@ namespace TrafficFilter
                     return false;
                 }
 
-                foreach (var requestFilter in _requestFiltersFactory.RequestFilters)
+                if (_firewall.IsMatch(httpContext))
                 {
-                    if (requestFilter.IsMatch(httpContext))
-                    {
-                        _ipBlacklist.Add(ipAddress, _trafficFilterOptions.IPBlacklistTimeoutSeconds);
-                        _logger.LogInformation($"Adding IP {ipAddress} to blacklist");
-                        return false;
-                    }
+                    _ipBlacklist.Add(ipAddress, _trafficFilterOptions.IPBlacklistTimeoutSeconds);                    
+                    return false;
+                }
+
+                if (_rateLimiter.IsMatch(httpContext))
+                {
+                    _logger.LogInformation($"Rate limiting {ipAddress} - request rejected {httpContext.Request.Path.Value} {httpContext.Request.Method}");
+                    _ipBlacklist.Add(ipAddress, _trafficFilterOptions.IPBlacklistTimeoutSeconds);
+                    _logger.LogInformation($"Adding IP {ipAddress} to blacklist");
+                    return false;
                 }
             }
             catch (Exception ex)
