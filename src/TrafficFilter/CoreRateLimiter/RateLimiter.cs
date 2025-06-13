@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TrafficFilter.Core;
+using TrafficFilter.CoreFirewall;
 using TrafficFilter.CoreRateLimiter.Configuration;
 using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
-using TrafficFilter.Rules;
 
 namespace TrafficFilter.CoreRateLimiter
 {
@@ -25,7 +24,7 @@ namespace TrafficFilter.CoreRateLimiter
         private readonly Dictionary<IPAddress, RequestsQueue> _ipRequestsQueues = new Dictionary<IPAddress, RequestsQueue>();
         private static SpinLock _spinlock;
         private readonly TimeSpan _expiresIn;
-        private readonly IList<RuleBase> _whitelistRules;
+        private readonly RulesContainer _rulesContainer;
         private readonly ILogger<RateLimiter> _logger;
 
         public RateLimiter(IOptions<RateLimiterOptions> options,
@@ -42,9 +41,7 @@ namespace TrafficFilter.CoreRateLimiter
             {
                 _options.Validate();
 
-                _whitelistRules = _options.WhitelistRules != null
-                   ? _options.WhitelistRules.Select(r => RuleBase.BuildRule(matchesFactory, r)).ToList()
-                   : new List<RuleBase>();
+                _rulesContainer = new RulesContainer(matchesFactory, _options.WhitelistRules);
             }
 
             _logger = logger;
@@ -57,12 +54,11 @@ namespace TrafficFilter.CoreRateLimiter
                 return false;
             }
 
-            foreach (var rule in _whitelistRules)
+            var whitelistMatchResult = _rulesContainer.IsMatch(httpContext);
+
+            if (whitelistMatchResult != null && whitelistMatchResult.Count > 0)
             {
-                if (rule.IsMatch(httpContext))
-                {
-                    return false;
-                }
+                return false; // If any whitelist rule matches, skip rate limiting
             }
 
             return IsFull(httpContext);

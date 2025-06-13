@@ -11,7 +11,7 @@ namespace TrafficFilter.CoreRateLimiter.Configuration
         public bool IsEnabled { get; set; }
         public int WindowSeconds { get; set; } = 1;
         public int RequestsLimit { get; set; } = 7;
-        public IList<RuleOptions> WhitelistRules { get; set; }
+        public List<RuleOptions> WhitelistRules { get; set; }
 
         public void Validate()
         {

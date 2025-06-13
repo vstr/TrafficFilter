@@ -44,8 +44,7 @@ namespace TrafficFilter.Tests
         public void WhitelistUrlsMatchedReturnsIsLimitReachedFalse()
         {
             //Arrange
-            var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("Contains", ".mp4").Returns(new MatchContains(".mp4"));
+            var matchesFactory = new MatchesFactory();
 
             var options = Substitute.For<IOptions<RateLimiterOptions>>();
             options.Value.Returns(new RateLimiterOptions()
@@ -114,7 +113,16 @@ namespace TrafficFilter.Tests
         {
             //Arrange
             var matchesFactory = Substitute.For<IMatchesFactory>();
-            matchesFactory.GetInstance("Contains", ".mp3").Returns(new MatchContains(".mp3"));
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "Url",
+                MatchType = "Contains",
+                Match = ".mp3",
+                Group = "TestGroup"
+            };
+
+            matchesFactory.GetInstance(ruleOptions).Returns(new MatchContains(".mp3", "TestGroup"));
 
             var options = Substitute.For<IOptions<RateLimiterOptions>>();
             options.Value.Returns(new RateLimiterOptions()

@@ -1,13 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using TrafficFilter.CoreFirewall.Configuration;
 using TrafficFilter.Extensions;
 using TrafficFilter.Matches;
-using TrafficFilter.Rules;
 
 namespace TrafficFilter.CoreFirewall
 {
@@ -21,7 +18,7 @@ namespace TrafficFilter.CoreFirewall
         private readonly IMatchesFactory _matchesFactory;
         private readonly ILogger<Firewall> _logger;
         private readonly FirewallOptions _options;
-        private readonly IList<RuleBase> _blockRules;
+        private readonly RulesContainer _rulesContainer;
 
         public Firewall(
             IMatchesFactory matchesFactory,
@@ -38,9 +35,7 @@ namespace TrafficFilter.CoreFirewall
             {
                 _options.Validate();
 
-                _blockRules = _options.BlockRules != null
-                    ? _options.BlockRules.Select(r => RuleBase.BuildRule(_matchesFactory, r)).ToList()
-                    : new List<RuleBase>();
+                _rulesContainer = new RulesContainer(_matchesFactory, _options.BlockRules);
             }
         }
 
@@ -51,16 +46,19 @@ namespace TrafficFilter.CoreFirewall
                 return false;
             }
 
-            foreach (var rule in _blockRules)
+            var matchResult = _rulesContainer.IsMatch(httpContext);
+
+            if (matchResult == null || matchResult.Count == 0)
             {
-                if (rule.IsMatch(httpContext))
-                {
-                    _logger.LogInformation($"Firewall rule '{rule.GetType().Name}' matched '{rule.MatchType}' value '{rule.MatchValue}' for {httpContext.GetIPAddress()} - request rejected {httpContext.GetDisplayUrl()} {httpContext.Request.Method}");
-                    return true;
-                }
+                return false;
             }
 
-            return false;
+            foreach (var rule in matchResult)
+            {
+                _logger.LogInformation($"Firewall rule '{rule.GetType().Name}' matched '{rule.MatchType}' value '{rule.MatchValue}' for {httpContext.GetIPAddress()} rule group: {rule.Group} - request rejected {httpContext.GetDisplayUrl()} {httpContext.Request.Method}");
+            }
+
+            return true;
         }
     }
 }

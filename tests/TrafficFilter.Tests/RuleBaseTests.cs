@@ -14,7 +14,16 @@ namespace TrafficFilter.Tests
         {
             var match = Substitute.For<IMatch>();
             var factory = Substitute.For<IMatchesFactory>();
-            factory.GetInstance("type", "match").Returns(match);
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "header:X-Test",
+                MatchType = "type",
+                Match = "match",
+                Group = "TestGroup"
+            };
+
+            factory.GetInstance(ruleOptions).Returns(match);
             var options = new RuleOptions
             {
                 RequestPart = "header:X-Test",
@@ -32,7 +41,16 @@ namespace TrafficFilter.Tests
         {
             var match = Substitute.For<IMatch>();
             var factory = Substitute.For<IMatchesFactory>();
-            factory.GetInstance("type", "match").Returns(match);
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "header",
+                MatchType = "type",
+                Match = "match",
+                Group = "TestGroup"
+            };
+
+            factory.GetInstance(ruleOptions).Returns(match);
             var options = new RuleOptions
             {
                 RequestPart = "header",
@@ -48,7 +66,16 @@ namespace TrafficFilter.Tests
         {
             var match = Substitute.For<IMatch>();
             var factory = Substitute.For<IMatchesFactory>();
-            factory.GetInstance("type", "match").Returns(match);
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "ip",
+                MatchType = "type",
+                Match = "match",
+                Group = "TestGroup"
+            };
+
+            factory.GetInstance(ruleOptions).Returns(match);
             var options = new RuleOptions
             {
                 RequestPart = "ip",
@@ -66,7 +93,16 @@ namespace TrafficFilter.Tests
         {
             var match = Substitute.For<IMatch>();
             var factory = Substitute.For<IMatchesFactory>();
-            factory.GetInstance("type", "match").Returns(match);
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "url",
+                MatchType = "type",
+                Match = "match",
+                Group = "TestGroup"
+            };
+
+            factory.GetInstance(ruleOptions).Returns(match);
             var options = new RuleOptions
             {
                 RequestPart = "url",
@@ -84,7 +120,16 @@ namespace TrafficFilter.Tests
         {
             var match = Substitute.For<IMatch>();
             var factory = Substitute.For<IMatchesFactory>();
-            factory.GetInstance("type", "match").Returns(match);
+
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "cookie:session",
+                MatchType = "type",
+                Match = "match",
+                Group = "TestGroup"
+            };
+
+            factory.GetInstance(ruleOptions).Returns(match);
             var options = new RuleOptions
             {
                 RequestPart = "cookie:session",

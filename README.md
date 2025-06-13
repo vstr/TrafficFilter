@@ -81,12 +81,14 @@ Add TrafficFilter configuration section to `appsettings.json`, modify it as need
                 {
                     "RequestPart": "Url", // Possible options: "Url|Header:user-agent|IP"
                     "MatchType": "EndsWith", // Possible options: "Regex|Contains|StartsWith|EndsWith|Exact|NullOrEmpty"
-                    "Match": ".php"
+                    "Match": ".php",
+                    "Group": "group1" // Optional group name for the rule, can be used when multiple rules need to be applied to the same group with the AND condition
                 },
                 {
                     "RequestPart": "IP",
                     "MatchType": "Regex",
-                    "Match": "10\\.10\\.\\d+\\.\\d+"
+                    "Match": "10\\.10\\.\\d+\\.\\d+",
+                    "Group": "group1"
                 },
                 {
                     "RequestPart": "Header:user-agent",

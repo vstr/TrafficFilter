@@ -2,20 +2,17 @@ using System.Text.RegularExpressions;
 
 namespace TrafficFilter.Matches
 {
-    public class MatchRegex : IMatch
+    public class MatchRegex : MatchBase
     {
         private readonly Regex _regex;
-        private readonly string _pattern;
 
-        public MatchRegex(string pattern)
+        public MatchRegex(string match, string group)
+            : base(match, group)
         {
-            _pattern = pattern;
-            _regex = new Regex(pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled);
+            _regex = new Regex(Match, RegexOptions.IgnoreCase | RegexOptions.Compiled);
         }
 
-        public string Match => _pattern;
-
-        public bool IsMatch(string source)
+        public override bool IsMatch(string source)
         {
             return _regex.IsMatch(source);
         }

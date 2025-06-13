@@ -1,5 +1,5 @@
 using FluentAssertions;
-
+using TrafficFilter.Configuration;
 using TrafficFilter.Matches;
 
 using Xunit;
@@ -14,8 +14,16 @@ namespace TrafficFilter.Tests
             //Arrange
             var matchesFactory = new MatchesFactory();
 
+            var ruleOptions = new RuleOptions
+            {
+                RequestPart = "Url",
+                MatchType = "Contains",
+                Match = "test",
+                Group = "TestGroup"
+            };
+
             //Act
-            var matchContains = matchesFactory.GetInstance("Contains", "test");
+            var matchContains = matchesFactory.GetInstance(ruleOptions);
 
             //Assert
             matchContains.Should().NotBeNull();

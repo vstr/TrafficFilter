@@ -2,20 +2,16 @@ using System;
 
 namespace TrafficFilter.Matches
 {
-    public class MatchExact : IMatch
+    public class MatchExact : MatchBase
     {
-        private readonly string _match;
-
-        public MatchExact(string match)
+        public MatchExact(string match, string group) 
+            : base(match, group)
         {
-            _match = match;
         }
 
-        public string Match => _match;
-
-        public bool IsMatch(string source)
+        public override bool IsMatch(string source)
         {
-            return string.Equals(source.Trim(), _match, StringComparison.InvariantCultureIgnoreCase);
+            return string.Equals(source.Trim(), Match, StringComparison.InvariantCultureIgnoreCase);
         }
     }
 }

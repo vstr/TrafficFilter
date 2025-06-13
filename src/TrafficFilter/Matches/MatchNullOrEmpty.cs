@@ -1,15 +1,13 @@
 namespace TrafficFilter.Matches
 {
-    public class MatchNullOrEmpty : IMatch
+    public class MatchNullOrEmpty : MatchBase
     {
-        public MatchNullOrEmpty(string match)
+        public MatchNullOrEmpty(string match, string group) 
+            : base(match, group)
         {
-            Match = match;
         }
 
-        public string Match { get; }
-
-        public bool IsMatch(string source)
+        public override bool IsMatch(string source)
         {
             return string.IsNullOrEmpty(source);
         }

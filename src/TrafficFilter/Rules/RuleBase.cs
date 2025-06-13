@@ -16,6 +16,7 @@ namespace TrafficFilter.Rules
 
         public string MatchType => _match.GetType().Name.Replace("Match", string.Empty);
         public string MatchValue => _match.Match;
+        public string Group => _match.Group;
 
         public bool IsMatch(HttpContext httpContext)
         {
@@ -37,7 +38,7 @@ namespace TrafficFilter.Rules
             IMatchesFactory matchesFactory,
             RuleOptions ruleOptions)
         {
-            var match = matchesFactory.GetInstance(ruleOptions.MatchType, ruleOptions.Match);
+            var match = matchesFactory.GetInstance(ruleOptions);
 
             var requestPart = ruleOptions.RequestPart.Split(":");
 

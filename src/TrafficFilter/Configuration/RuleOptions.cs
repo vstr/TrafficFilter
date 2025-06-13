@@ -7,6 +7,7 @@ namespace TrafficFilter.Configuration
         public string RequestPart { get; set; }
         public string MatchType { get; set; }
         public string Match { get; set; }
+        public string Group { get; set; }
 
         public void Validate()
         {

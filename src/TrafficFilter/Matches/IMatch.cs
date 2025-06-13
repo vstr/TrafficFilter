@@ -5,5 +5,6 @@ namespace TrafficFilter.Matches
         bool IsMatch(string source);
 
         string Match { get; }
+        string Group { get; }
     }
 }
